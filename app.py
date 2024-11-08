@@ -11,14 +11,9 @@ dataTomClancy = pd.read_csv('./rs6_clean.csv')
 colonnes = ['kills', 'deaths', 'losess', 'xp', 'headshots', 'games_played', 'time_played', 'wins']
 GoodDataTomClancy = dataTomClancy[colonnes]
 
-# Load model and check type
-try:
-    trees = load('ensemble_trees.joblib')
-    st.write("Le modèle d'ensemble a été chargé avec succès.")
-    st.write(f"Type of 'trees': {type(trees)}")
-except Exception as e:
-    st.error(f"Erreur lors du chargement du modèle : {e}")
-    st.stop()  # Stop execution if there's an error loading the model
+
+trees = load('ensemble_trees.joblib')
+st.write("Le modèle d'ensemble a été chargé avec succès.")
 
 n_estimators = len(trees)
 
