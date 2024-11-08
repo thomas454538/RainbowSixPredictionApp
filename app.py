@@ -13,15 +13,25 @@ colonnes = ['kills', 'deaths', 'losess', 'xp', 'headshots', 'games_played', 'tim
 GoodDataTomClancy = dataTomClancy[colonnes]
 
 
-# Télécharger le fichier joblib
+# URL pour le modèle
 url = 'https://raw.githubusercontent.com/thomas454538/RainbowSixPredictionApp/main/ensemble_trees.joblib'
-response = requests.get(url)
-with open('ensemble_trees.joblib', 'wb') as f:
-    f.write(response.content)
 
-# Charger le modèle
-trees = load('ensemble_trees.joblib')
-st.write("Le modèle d'ensemble a été chargé avec succès.")
+try:
+    # Télécharger le modèle
+    response = requests.get(url)
+    with open('ensemble_trees.joblib', 'wb') as f:
+        f.write(response.content)
+    
+    # Charger le modèle
+    trees = load('ensemble_trees.joblib')
+    st.write("Le modèle d'ensemble a été chargé avec succès.")
+    
+except ValueError as e:
+    st.error("Erreur lors du chargement du modèle : incompatibilité de versions. Veuillez vérifier la version de scikit-learn utilisée pour enregistrer le modèle.")
+    st.write("Détails de l'erreur :", e)
+except Exception as e:
+    st.error("Erreur inattendue lors du chargement du modèle.")
+    st.write("Détails de l'erreur :", e)
 
 n_estimators = len(trees)
 
