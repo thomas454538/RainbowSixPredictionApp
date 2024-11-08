@@ -4,5 +4,5 @@ pandas
 joblib
 matplotlib
 seaborn
-scikit-learn==0.24.2  # Example version, replace with the correct one
+scikit-learn==1.1.3  # Example version, replace with the correct one
 

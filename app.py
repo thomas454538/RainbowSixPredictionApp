@@ -11,7 +11,8 @@ dataTomClancy = pd.read_csv('./rs6_clean.csv')
 colonnes = ['kills', 'deaths', 'losess', 'xp', 'headshots', 'games_played', 'time_played', 'wins']
 GoodDataTomClancy = dataTomClancy[colonnes]
 
-trees = load('ensemble_trees.joblib')
+trees = load('ensemble_trees.joblib', mmap_mode=None)
+
 st.write("Le modèle d'ensemble a été chargé avec succès.")
 
 n_estimators = len(trees)
