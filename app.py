@@ -3,25 +3,33 @@ import numpy as np
 import pandas as pd
 from joblib import load
 
+# Set page configuration at the very beginning
+st.set_page_config(page_title="Prédiction Wins", page_icon="🎮", layout="centered", initial_sidebar_state="collapsed")
 
+# Load and prepare data
 dataTomClancy = pd.read_csv('./rs6_clean.csv')
 colonnes = ['kills', 'deaths', 'losess', 'xp', 'headshots', 'games_played', 'time_played', 'wins']
 GoodDataTomClancy = dataTomClancy[colonnes]
 
+# Load model and check type
 try:
     trees = load('ensemble_trees.joblib')
-    print("Model loaded successfully.")
-except ModuleNotFoundError as e:
-    print(f"Missing module: {e}")
-n_estimators = len(trees)
-print("Le modèle d'ensemble a été chargé avec succès.")
+    st.write("Le modèle d'ensemble a été chargé avec succès.")
+    st.write(f"Type of 'trees': {type(trees)}")
+except Exception as e:
+    st.error(f"Erreur lors du chargement du modèle : {e}")
+    st.stop()  # Stop execution if there's an error loading the model
 
+n_estimators = len(trees)
+
+# Calculate medians for display
 medians = GoodDataTomClancy[['kills', 'deaths', 'losess', 'xp', 'headshots', 'games_played', 'time_played']].median()
 
-st.set_page_config(page_title="Prédiction Wins", page_icon="🎮", layout="centered", initial_sidebar_state="collapsed")
+# Streamlit UI setup
 st.title("🎮 Prédiction des Wins")
 st.markdown("### Entrez les caractéristiques du joueur pour prédire si le nombre de wins est supérieur à la médiane")
 
+# Custom CSS for styling
 st.markdown("""
     <style>
     /* Arrière-plan clair */
@@ -66,10 +74,12 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# Sidebar with median values
 st.sidebar.header("Valeurs médianes pour chaque caractéristique")
 for feature, median_value in medians.items():
     st.sidebar.write(f"{feature.capitalize()} : {int(median_value)}")
 
+# Input fields for user characteristics
 st.subheader("Caractéristiques")
 kills = st.number_input("Nombre de kills", min_value=0, value=int(medians['kills']))
 deaths = st.number_input("Nombre de deaths", min_value=0, value=int(medians['deaths']))
@@ -79,8 +89,10 @@ headshots = st.number_input("Nombre de headshots", min_value=0, value=int(median
 games_played = st.number_input("Nombre de games played", min_value=0, value=int(medians['games_played']))
 time_played = st.number_input("Temps joué", min_value=0, value=int(medians['time_played']))
 
+# Prepare data for prediction
 donnees_utilisateur = np.array([[kills, deaths, losess, xp, headshots, games_played, time_played]])
 
+# Predict button and results
 if st.button("Prédire"):
     predictions_utilisateur = [tree.predict(donnees_utilisateur) for tree in trees]
     predictions_utilisateur = np.array(predictions_utilisateur)
