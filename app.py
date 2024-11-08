@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import pickle
+import requests
 
 # Configuration de la page
 st.set_page_config(page_title="Prédiction Wins", page_icon="🎮", layout="centered", initial_sidebar_state="collapsed")
@@ -11,11 +12,15 @@ dataTomClancy = pd.read_csv('./rs6_clean.csv')
 colonnes = ['kills', 'deaths', 'losess', 'xp', 'headshots', 'games_played', 'time_played', 'wins']
 GoodDataTomClancy = dataTomClancy[colonnes]
 
-# Chargement du modèle depuis le fichier .pkl
-with open('ensemble_trees.pkl', 'rb') as f:
-    trees = pickle.load(f)
+url = 'https://raw.githubusercontent.com/thomas454538/RainbowSixPredictionApp/main/ensemble_trees.pkl'
 
-st.write("Le modèle d'ensemble a été chargé avec succès.")
+# Téléchargement du fichier modèle
+response = requests.get(url)
+if response.status_code == 200:
+    trees = pickle.loads(response.content)
+    st.write("Le modèle d'ensemble a été chargé avec succès.")
+else:
+    st.error("Erreur lors du chargement du modèle. Veuillez vérifier le lien ou la connexion.")
 
 n_estimators = len(trees)
 
