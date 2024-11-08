@@ -1,5 +1,8 @@
 # Prédiction des Victoires dans Rainbow Six Siege
 
+
+- test online : [RainbowSixPredictionApp](http://192.168.11.46:8501)
+
 Ce projet utilise un modèle d'ensemble d'arbres de décision pour prédire si le nombre de victoires d'un joueur est au-dessus de la moyenne. L'approche d'ensemble permet de combiner plusieurs modèles pour obtenir de meilleures performances et une plus grande robustesse.
 
 ## Modèle Utilisé : Ensemble d'Arbres de Décision
