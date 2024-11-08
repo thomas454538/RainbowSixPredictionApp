@@ -1,65 +1,118 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-import requests
 from joblib import load
+import os
 
-# Configuration de la page
-st.set_page_config(page_title="Prédiction Wins", page_icon="🎮", layout="centered", initial_sidebar_state="collapsed")
+# Page Configuration
+st.set_page_config(
+    page_title="Prédiction des Wins",
+    page_icon="🎮",
+    layout="centered",
+    initial_sidebar_state="collapsed"
+)
 
-# Chargement et préparation des données
+# Load and prepare data
 dataTomClancy = pd.read_csv('./rs6_clean.csv')
 colonnes = ['kills', 'deaths', 'losess', 'xp', 'headshots', 'games_played', 'time_played', 'wins']
 GoodDataTomClancy = dataTomClancy[colonnes]
 
+# Calculate medians for display
+medians = GoodDataTomClancy[['kills', 'deaths', 'losess', 'xp', 'headshots', 'games_played', 'time_played']].median()
 
-# URL pour le modèle
-url = 'https://raw.githubusercontent.com/thomas454538/RainbowSixPredictionApp/main/ensemble_trees.joblib'
+# Function to load the model with caching
+@st.cache_resource
+def load_model():
+    model_filename = 'random_forest_model.joblib'
+    if not os.path.isfile(model_filename):
+        st.error(f"Le fichier {model_filename} n'existe pas dans le répertoire racine.")
+        st.stop()
+    # Load the model
+    model = load(model_filename)
+    return model
 
 try:
-    # Télécharger le modèle
-    response = requests.get(url)
-    with open('ensemble_trees.joblib', 'wb') as f:
-        f.write(response.content)
-    
-    # Charger le modèle
-    trees = load('ensemble_trees.joblib')
-    st.write("Le modèle d'ensemble a été chargé avec succès.")
-    
+    model = load_model()
+    st.write("Le modèle a été chargé avec succès.")
 except ValueError as e:
     st.error("Erreur lors du chargement du modèle : incompatibilité de versions. Veuillez vérifier la version de scikit-learn utilisée pour enregistrer le modèle.")
     st.write("Détails de l'erreur :", e)
+    st.stop()
 except Exception as e:
     st.error("Erreur inattendue lors du chargement du modèle.")
     st.write("Détails de l'erreur :", e)
+    st.stop()
 
-n_estimators = len(trees)
+# Feature labels
+feature_labels = {
+    'kills': 'Nombre de kills',
+    'deaths': 'Nombre de deaths',
+    'losess': 'Nombre de losses',
+    'xp': 'Nombre de XP',
+    'headshots': 'Nombre de headshots',
+    'games_played': 'Nombre de parties jouées',
+    'time_played': 'Temps joué (en secondes)'
+}
 
-# Calcul des médianes pour affichage
-medians = GoodDataTomClancy[['kills', 'deaths', 'losess', 'xp', 'headshots', 'games_played', 'time_played']].median()
-
-# Interface utilisateur Streamlit
+# Streamlit User Interface
 st.title("🎮 Prédiction des Wins")
+st.markdown("<hr>", unsafe_allow_html=True)
 st.markdown("### Entrez les caractéristiques du joueur pour prédire si le nombre de wins est supérieur à la médiane")
+st.markdown("<br>", unsafe_allow_html=True)
 
-# Style personnalisé avec CSS
+# Collect user input
+def get_user_input(medians):
+    user_input = {}
+    col1, col2 = st.columns(2)
+    features = list(medians.index)
+    for i, feature in enumerate(features):
+        label = feature_labels.get(feature, feature)
+        default_value = int(medians[feature])
+        help_text = 'Temps joué en secondes' if feature == 'time_played' else None
+
+        if i % 2 == 0:
+            with col1:
+                value = st.number_input(label, min_value=0, value=default_value, help=help_text)
+        else:
+            with col2:
+                value = st.number_input(label, min_value=0, value=default_value, help=help_text)
+        user_input[feature] = value
+    return pd.DataFrame([user_input])
+
+# Prepare user input for prediction
+donnees_utilisateur = get_user_input(medians)
+
+# Apply custom CSS styling
 st.markdown("""
     <style>
-    /* Arrière-plan clair */
+    /* Center the main content */
+    .main {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    /* Light background */
     body {
         background: linear-gradient(135deg, #ffffff, #f0f4f8);
         color: #333333;
     }
-
-    /* Style général de l'interface */
+    /* General interface styling */
     .stApp {
         background-color: #ffffff;
         border-radius: 12px;
         padding: 30px;
         box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
     }
-    
-    /* Bouton interactif */
+    /* Title styling */
+    h1 {
+        color: #333333;
+        text-align: center;
+    }
+    /* Sidebar styling */
+    .css-1d391kg {
+        background-color: #f0f2f6;
+    }
+    /* Button styling */
     .stButton>button {
         background-color: #4CAF50;
         color: white;
@@ -68,14 +121,13 @@ st.markdown("""
         border-radius: 8px;
         padding: 10px 20px;
         transition: transform 0.2s ease, background-color 0.2s ease;
+        cursor: pointer;
     }
-    
     .stButton>button:hover {
         transform: scale(1.05);
         background-color: #45a049;
     }
-
-    /* Champs de saisie */
+    /* Input fields */
     input {
         background-color: #f0f4f8;
         color: #333333;
@@ -83,34 +135,34 @@ st.markdown("""
         padding: 10px;
         border: 1px solid #cccccc;
     }
-    
+    /* Success and error messages styling */
+    .stAlert {
+        font-size: 18px;
+    }
+    /* Hide footer and header */
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
 
-# Barre latérale avec les valeurs médianes
-st.sidebar.header("Valeurs médianes pour chaque caractéristique")
-for feature, median_value in medians.items():
-    st.sidebar.write(f"{feature.capitalize()} : {int(median_value)}")
+# Ensure donnees_utilisateur has correct columns for model
+donnees_utilisateur = donnees_utilisateur.reindex(columns=model.feature_names_in_, fill_value=0)
 
-# Champs de saisie pour les caractéristiques utilisateur
-st.subheader("Caractéristiques")
-kills = st.number_input("Nombre de kills", min_value=0, value=int(medians['kills']))
-deaths = st.number_input("Nombre de deaths", min_value=0, value=int(medians['deaths']))
-losess = st.number_input("Nombre de losess", min_value=0, value=int(medians['losess']))
-xp = st.number_input("Nombre de XP", min_value=0, value=int(medians['xp']))
-headshots = st.number_input("Nombre de headshots", min_value=0, value=int(medians['headshots']))
-games_played = st.number_input("Nombre de games played", min_value=0, value=int(medians['games_played']))
-time_played = st.number_input("Temps joué", min_value=0, value=int(medians['time_played']))
-
-# Préparation des données pour la prédiction
-donnees_utilisateur = np.array([[kills, deaths, losess, xp, headshots, games_played, time_played]])
-
-# Bouton de prédiction et affichage des résultats
+# Prediction button and results display
+st.markdown("<br>", unsafe_allow_html=True)
 if st.button("Prédire"):
-    predictions_utilisateur = np.array([tree.predict(donnees_utilisateur) for tree in trees])
-    prediction_finale_utilisateur = (np.sum(predictions_utilisateur, axis=0) >= n_estimators / 2).astype(int)
-
-    if prediction_finale_utilisateur[0] == 1:
-        st.success("🎉 Prédiction : Le nombre de 'wins' est probablement **au-dessus** de la médiane.")
-    else:
-        st.error("❌ Prédiction : Le nombre de 'wins' est probablement **en-dessous** de la médiane.")
+    try:
+        with st.spinner('Calcul de la prédiction... '):
+            prediction = model.predict(donnees_utilisateur)
+        
+        if prediction[0] == 1:
+            st.success("🎉 Prédiction : Le nombre de 'wins' est probablement **au-dessus** de la médiane.")
+        else:
+            st.warning("❌ Prédiction : Le nombre de 'wins' est probablement **en-dessous** de la médiane.")
+    
+    except Exception as e:
+        # Debug information for troubleshooting
+        st.write("Détails de l'erreur donnees_utilisateur.values :", donnees_utilisateur.values)
+        st.write("Détails de l'erreur model.feature_names_in_ :", model.feature_names_in_)
+        st.error("Une erreur est survenue lors de la prédiction.")
+        st.write("Détails de l'erreur :", e)
