@@ -1,0 +1,14 @@
+# Environnements virtuels
+venv/
+mon_env/
+
+# Fichiers temporaires Python
+__pycache__/
+*.py[cod]
+
+# Fichiers spécifiques à l'OS
+.DS_Store
+Thumbs.db
+
+# Fichiers de configuration
+*.env
