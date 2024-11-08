@@ -3,11 +3,16 @@ import numpy as np
 import pandas as pd
 from joblib import load
 
+
 dataTomClancy = pd.read_csv('./rs6_clean.csv')
 colonnes = ['kills', 'deaths', 'losess', 'xp', 'headshots', 'games_played', 'time_played', 'wins']
 GoodDataTomClancy = dataTomClancy[colonnes]
 
-trees = load('ensemble_trees.joblib')
+try:
+    trees = load('ensemble_trees.joblib')
+    print("Model loaded successfully.")
+except ModuleNotFoundError as e:
+    print(f"Missing module: {e}")
 n_estimators = len(trees)
 print("Le modèle d'ensemble a été chargé avec succès.")
 
