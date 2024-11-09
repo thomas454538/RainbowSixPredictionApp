@@ -28,6 +28,12 @@ Un arbre de décision unique peut être sensible aux variations des données d'e
 
 ### Schéma du Modèle
 
+
+
+![Schéma du Modèle](https://kobia.fr/wp-content/uploads/2022/01/definition-bagging.png)
+
+
+
 ```
 cssCopier le code[Collecte des Données]
       |
@@ -84,7 +90,7 @@ Un graphique montre l'évolution des scores de précision et F1 sur les ensemble
 
 ## Lien vers l'Application
 
-- Application en ligne : [RainbowSixPredictionApp](https://thomas454538-rainbowsixpredictionapp-app-2zgi96.streamlit.app/)
+- Application en ligne : [RainbowSixPredictionApp](http://192.168.11.46:8501)
 
 ## 🚀 Exécution
 
