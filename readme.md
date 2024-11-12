@@ -1,4 +1,4 @@
-# Prédiction des Victoires dans Rainbow Six Siege V2 🎮
+# Prédiction des Victoires dans Rainbow Six Siege 🎮
 
 Ce projet est une application de prédiction qui utilise un **modèle d'ensemble d'arbres de décision** pour estimer si le nombre de victoires d'un joueur dans Rainbow Six Siege est supérieur ou inférieur à la médiane. L'usage d'un modèle d'ensemble améliore la précision et la robustesse en combinant les résultats de plusieurs arbres de décision.
 
@@ -74,6 +74,15 @@ L’application inclut des visualisations par estimation de densité de probabil
 
 - **Source** : [Kaggle](https://www.kaggle.com/datasets/fahadalqahtani/tom-clancys-rainbow-six-siege)
 
+### Variables :
+
+- `kills` : Nombre de kills
+- `deaths` : Nombre de morts
+- `losses` : Nombre de défaites
+- `xp` : Expérience accumulée
+- `headshots` : Nombre de tirs à la tête
+- `games_played` : Nombre de parties jouées
+- `time_played` : Temps de jeu (en secondes)
 
 ## 📈 Évolution des Performances du Modèle
 
@@ -81,7 +90,7 @@ Un graphique montre l'évolution des scores de précision et F1 sur les ensemble
 
 ## Lien vers l'Application
 
-- Application en ligne : [RainbowSixPredictionAppV2](https://rainbowsixpredictionappv2.streamlit.app/))
+- Application en ligne : [RainbowSixPredictionApp](https://thomas454538-rainbowsixpredictionapp-app-2zgi96.streamlit.app)
 
 ## 🚀 Exécution
 
